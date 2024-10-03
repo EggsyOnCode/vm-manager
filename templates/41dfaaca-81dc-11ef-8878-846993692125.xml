@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <domain type='qemu'>
-  <name>{{.Name}}</name>
-  <uuid>{{.UUID}}</uuid>
-  <memory>{{.Mem}}</memory>  
-  <currentMemory>{{.Mem}}</currentMemory>
-  <vcpu>{{.VCPUs}}</vcpu>
+  <name>ubuntu</name>
+  <uuid>41dfaaca-81dc-11ef-8878-846993692125</uuid>
+  <memory>200200</memory>  
+  <currentMemory>200200</currentMemory>
+  <vcpu>2</vcpu>
   <os>
     <type arch='i686' machine='pc'>hvm</type>
     <boot dev='cdrom'/>
@@ -13,13 +13,13 @@
     <emulator>/usr/bin/qemu-system-i386</emulator>
 
     <disk type='file' device='cdrom'>
-      <source file='{{.PathToBootImg}}'/>
+      <source file='/home/xen/vms/images/alpine-standard-3.20.3-x86.iso'/>
       <target dev='hdc'/>
       <readonly/>
     </disk>
 
     <disk type='file' device='disk'>
-      <source file='/var/lib/libvirt/images/{{.Name}}.qcow2'/>
+      <source file='/var/lib/libvirt/images/ubuntu.qcow2'/>
       <target dev='hda'/>
     </disk>
 

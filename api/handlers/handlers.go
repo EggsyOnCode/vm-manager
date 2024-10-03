@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"os"
 
@@ -41,11 +42,11 @@ func HandleVMCreateReq(ctx echo.Context) error {
 	cfg.OsType = ALPINE_LINUX
 	cfg.Storage = req.Storage
 
-	xmlFile := cfg.CreateXMLConfig(req.Name, req.Mem, req.Storage, (req.OsType))
+	xmlFile := cfg.CreateXMLConfig(req.Name, req.Mem, req.Storage, string(cfg.OsType))
 
 	cwd, _ := os.Getwd()
-	basePath := cwd + "/templates"
-	xmlFilePath := basePath + "/" + xmlFile
+	xmlFilePath := cwd + "/" + xmlFile
+	log.Printf("xml file path: %v", xmlFilePath)
 	cfg.XmlConfig = xmlFilePath
 
 	v := new(vm.VM)

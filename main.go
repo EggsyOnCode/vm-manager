@@ -2,8 +2,10 @@ package main
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/EggsyOnCode/vm-manager/api"
+	"github.com/joho/godotenv"
 )
 
 func startServer() {
@@ -13,6 +15,11 @@ func startServer() {
 }
 
 func main() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
 	startServer()
 
 	select {}

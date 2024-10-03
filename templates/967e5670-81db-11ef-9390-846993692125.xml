@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <domain type='qemu'>
   <name>ubuntu-2</name>
-  <uuid>d783a9cd-81d6-11ef-bd93-846993692125</uuid>
+  <uuid>967e5670-81db-11ef-9390-846993692125</uuid>
   <memory>200200</memory>  
   <currentMemory>200200</currentMemory>
   <vcpu>2</vcpu>
@@ -23,8 +23,9 @@
       <target dev='hda'/>
     </disk>
 
-    <interface type='network'>
-      <source network='default'/>
+    <interface type='direct'>
+      <source dev='wlp4s0' mode='bridge'/>
+      <model type='virtio'/>
     </interface>
 
     <graphics type='vnc' port='-1'/>

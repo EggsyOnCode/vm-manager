@@ -56,6 +56,7 @@ func (cfg *Config) CreateXMLConfig(n string, mem int, store int, osType string) 
 
 	if osType == "alpine_linux" {
 		pathToAlpineLinux := os.Getenv("DEFAULT_OS_PATH")
+		log.Printf("path to alpine linux is %v", pathToAlpineLinux)
 		cfg.PathToBootImg = string(pathToAlpineLinux)
 	}
 
@@ -107,7 +108,7 @@ func (vm *VM) NewVM(cfg *Config) error {
 	}
 	vm.Config = cfg
 	vm.Conn = conn
-	log.Printf("config ffile is at %v", vm.Config.XmlConfig)
+	log.Printf("config file is at %v", vm.Config.XmlConfig)
 	// reading the file
 	xmlFile, _ := ioutil.ReadFile(vm.Config.XmlConfig)
 
