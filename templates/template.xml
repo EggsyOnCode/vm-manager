@@ -3,7 +3,7 @@
   <uuid>{{.UUID}}</uuid>
   <memory>{{.Mem}}</memory>  
   <currentMemory>{{.Mem}}</currentMemory>
-  <vcpu>{{.VCPU}}</vcpu>
+  <vcpu>{{.VCPUs}}</vcpu>
   <os>
     <type arch='i686' machine='pc'>hvm</type>
     <boot dev='cdrom'/>

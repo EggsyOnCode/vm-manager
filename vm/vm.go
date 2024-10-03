@@ -19,7 +19,8 @@ type Config struct {
 	Name          string
 	Mem           int
 	PathToBootImg string
-	vCPUs         int
+	UUID          string
+	VCPUs         int
 	Storage       int    // how much storage in GB
 	XmlConfig     string // path to xml config on server
 }
@@ -42,17 +43,19 @@ func (cfg *Config) CreateXMLConfig(n string, mem int, store int, img string) {
 		Mem:           mem,
 		PathToBootImg: img,
 		Storage:       store,
-		vCPUs:         vCPUS,
+		VCPUs:         vCPUS,
+		UUID:          uuid.String(),
 	}
 
 	// 2. Parse the XML template
-	tmpl, err := template.ParseFiles("templates/template.xml")
+	os.Chdir("../templates")
+	tmpl, err := template.ParseFiles("template.xml")
 	if err != nil {
 		log.Fatalf("Error parsing template: %v", err)
 	}
 
 	// 3. Create a file to write the generated XML
-	name := fmt.Sprintf("templates/%s.xml", uuid)
+	name := fmt.Sprintf("%s.xml", uuid)
 	outputFile, err := os.Create(name)
 	if err != nil {
 		log.Fatalf("Error creating output file: %v", err)
