@@ -1,0 +1,4 @@
+github.com/google/uuid v1.6.0 h1:NIvaJDMOsjHA8n1jAhLSgzrAzy1Hgr+hNrb57e+94F0=
+github.com/google/uuid v1.6.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
+gitlab.com/libvirt/libvirt-go v7.4.0+incompatible h1:jqAH1Fff4trRhGHExNRg1O+STt84p1CuaL4t0/ib0Yw=
+gitlab.com/libvirt/libvirt-go v7.4.0+incompatible/go.mod h1:0Udcl5Mhzu6Ti4apB5n84xFDFxJM+Ns+fxJOX2xZrxI=
