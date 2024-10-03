@@ -6,13 +6,8 @@ import (
 
 func TestTemplateCreation(t *testing.T) {
 	// 1. Create a new Config object
-	cfg := &Config{
-		Name:          "hello",
-		Mem:           1024,
-		PathToBootImg: "test.img",
-		Storage:       1,
-	}
+	cfg := new(Config)
 
 	// 2. Create an XML configuration file
-	cfg.CreateXMLConfig("test", 1024, 10, "test.img")
+	cfg.CreateXMLConfig("test", 1024, 10, ALPINE_LINUX)
 }

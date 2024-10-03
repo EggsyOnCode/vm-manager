@@ -15,9 +15,16 @@ const (
 	vCPUS = 2
 )
 
+type OSTYPE string
+
+const (
+	ALPINE_LINUX OSTYPE = "/home/xen/vms/images/alpine-standard-3.20.3-x86.iso"
+)
+
 type Config struct {
 	Name          string
 	Mem           int
+	OsType        OSTYPE
 	PathToBootImg string
 	UUID          string
 	VCPUs         int
@@ -36,15 +43,18 @@ type VM struct {
 	Config *Config
 }
 
-func (cfg *Config) CreateXMLConfig(n string, mem int, store int, img string) {
+func (cfg *Config) CreateXMLConfig(n string, mem int, store int, osType OSTYPE) {
 	uuid, _ := uuid.NewUUID()
 	cfg = &Config{
-		Name:          n,
-		Mem:           mem,
-		PathToBootImg: img,
-		Storage:       store,
-		VCPUs:         vCPUS,
-		UUID:          uuid.String(),
+		Name:    n,
+		Mem:     mem,
+		Storage: store,
+		VCPUs:   vCPUS,
+		UUID:    uuid.String(),
+	}
+
+	if osType == ALPINE_LINUX {
+		cfg.PathToBootImg = string(ALPINE_LINUX)
 	}
 
 	// 2. Parse the XML template
