@@ -1,9 +1,12 @@
 package vm
 
 import (
+	"encoding/xml"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
+	"os/exec"
 	"text/template"
 	"time"
 
@@ -19,6 +22,7 @@ type OSTYPE string
 
 const (
 	ALPINE_LINUX OSTYPE = "/home/xen/vms/images/alpine-standard-3.20.3-x86.iso"
+	STORAGE_PATH        = "/home/xen/vms/images/alpine-standard-3.20.3-x86.iso"
 )
 
 type Config struct {
@@ -28,7 +32,7 @@ type Config struct {
 	PathToBootImg string
 	UUID          string
 	VCPUs         int
-	Storage       int    // how much storage in GB
+	Storage       int    // how much storage in MB
 	XmlConfig     string // path to xml config on server
 }
 
@@ -43,7 +47,7 @@ type VM struct {
 	Config *Config
 }
 
-func (cfg *Config) CreateXMLConfig(n string, mem int, store int, osType OSTYPE) {
+func (cfg *Config) CreateXMLConfig(n string, mem int, store int, osType string) string {
 	uuid, _ := uuid.NewUUID()
 	cfg = &Config{
 		Name:    n,
@@ -53,12 +57,16 @@ func (cfg *Config) CreateXMLConfig(n string, mem int, store int, osType OSTYPE) 
 		UUID:    uuid.String(),
 	}
 
-	if osType == ALPINE_LINUX {
+	if osType == "alpine_linux" {
 		cfg.PathToBootImg = string(ALPINE_LINUX)
 	}
 
+	log.Printf("%v \n", cfg)
+
 	// 2. Parse the XML template
-	os.Chdir("../templates")
+	os.Chdir("/home/xen/Desktop/code/virt/vm-manger/templates")
+	curDir, _ := os.Getwd()
+	log.Printf("curr dir is %v", curDir)
 	tmpl, err := template.ParseFiles("template.xml")
 	if err != nil {
 		log.Fatalf("Error parsing template: %v", err)
@@ -72,11 +80,24 @@ func (cfg *Config) CreateXMLConfig(n string, mem int, store int, osType OSTYPE) 
 	}
 	defer outputFile.Close()
 
+	// Create an XML encoder
+	encoder := xml.NewEncoder(outputFile)
+	encoder.Indent("", "  ") // Indent the XML for readability
+
 	// 4. Execute the template with the data
 	err = tmpl.Execute(outputFile, cfg)
 	if err != nil {
 		log.Fatalf("Error executing template: %v", err)
 	}
+
+	// Ensure all data is written to the file
+	if err := encoder.Flush(); err != nil {
+		log.Fatalf("Error flushing encoder: %v", err)
+	}
+
+	log.Printf("Created XML config file: %s", name)
+
+	return name
 }
 
 func (vm *VM) NewVM(cfg *Config) error {
@@ -86,19 +107,51 @@ func (vm *VM) NewVM(cfg *Config) error {
 	}
 	vm.Config = cfg
 	vm.Conn = conn
-	dom, err := vm.Conn.DomainDefineXML(vm.Config.XmlConfig)
+	log.Printf("config ffile is at %v", vm.Config.XmlConfig)
+	// reading the file
+	xmlFile, _ := ioutil.ReadFile(vm.Config.XmlConfig)
+
+	// creating storage file at predefined path
+	err1 := createDiskImage(cfg)
+	if err1 != nil {
+		return fmt.Errorf("failed to create storage %s", err1)
+	}
+
+	dom, err := conn.DomainDefineXML(string(xmlFile))
 	if err != nil {
 		return fmt.Errorf("failed to define domain: %v", err)
 	}
 	vm.Domain = dom
+	err = dom.SetAutostart(true)
+	if err != nil {
+		log.Printf("Failed to set autostart for domain '%s': %v", cfg.Name, err)
+	} else {
+		fmt.Printf("Domain '%s' set to autostart.\n", cfg.Name)
+	}
+
+	log.Printf(
+		"Created new VM with name: %s, memory: %d, storage: %d, osType: %s",
+		cfg.Name,
+		cfg.Mem,
+		cfg.Storage,
+		cfg.OsType,
+	)
 	return nil
 }
 
 func (vm *VM) Start() error {
+	n, _ := vm.Domain.GetName()
+	log.Printf("name is %v", n)
 	err := vm.Domain.Create()
 	if err != nil {
 		return fmt.Errorf("failed to start domain: %v", err)
 	}
+
+	currState, _, _ := vm.Domain.GetState()
+	log.Printf("Current state of the vm %s is %s", vm.Config.Name, stateToString(currState))
+
+	log.Printf("Started VM %s", vm.Config.Name)
+
 	return nil
 }
 
@@ -107,6 +160,9 @@ func (vm *VM) Stop() error {
 	if err != nil {
 		return fmt.Errorf("failed to stop domain: %v", err)
 	}
+
+	log.Printf("Stopped VM %s", vm.Config.Name)
+
 	return nil
 }
 
@@ -115,6 +171,8 @@ func (vm *VM) Delete() error {
 	if err != nil {
 		return fmt.Errorf("failed to delete domain: %v", err)
 	}
+
+	log.Printf("Deleted VM %s", vm.Config.Name)
 	return nil
 }
 
@@ -172,5 +230,15 @@ func stopDomain(dom *libvirt.Domain) error {
 		}
 	}
 
+	return nil
+}
+
+func createDiskImage(cfg *Config) error {
+	pathToStorage := fmt.Sprintf("/var/lib/libvirt/images/%s.qcow2", cfg.Name)
+	cmd := exec.Command("qemu-img", "create", "-f", "qcow2", pathToStorage, fmt.Sprintf("%dM", cfg.Storage))
+	err := cmd.Run()
+	if err != nil {
+		return fmt.Errorf("failed to create disk image: %v", err)
+	}
 	return nil
 }

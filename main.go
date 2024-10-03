@@ -7,9 +7,9 @@ import (
 )
 
 func startServer() {
-	s := new(api.Server)
-	fmt.Print("Starting server...")
-	go s.Start()
+	s := api.NewServer()
+	s.Start(":3000")
+	fmt.Println("Starting server...")
 }
 
 func main() {

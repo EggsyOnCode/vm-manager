@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <domain type='qemu'>
   <name>{{.Name}}</name>
   <uuid>{{.UUID}}</uuid>
@@ -18,7 +19,7 @@
     </disk>
 
     <disk type='file' device='disk'>
-      <source file='/var/lib/libvirt/images/{{.Name}}.img'/>
+      <source file='/var/lib/libvirt/images/{{.Name}}.qcow2'/>
       <target dev='hda'/>
     </disk>
 
