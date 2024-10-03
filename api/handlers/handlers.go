@@ -3,14 +3,14 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
+	"os"
 
 	"github.com/EggsyOnCode/vm-manager/vm"
 	"github.com/labstack/echo/v4"
 )
 
 const (
-	XML_TEMPLATES_PATH = "/home/xen/Desktop/code/virt/vm-manger/templates"
-	ALPINE_LINUX       = "alpine_linux"
+	ALPINE_LINUX = "alpine_linux"
 )
 
 type CreateVMRequest struct {
@@ -42,7 +42,10 @@ func HandleVMCreateReq(ctx echo.Context) error {
 	cfg.Storage = req.Storage
 
 	xmlFile := cfg.CreateXMLConfig(req.Name, req.Mem, req.Storage, (req.OsType))
-	xmlFilePath := XML_TEMPLATES_PATH + "/" + xmlFile
+
+	cwd, _ := os.Getwd()
+	basePath := cwd + "/templates"
+	xmlFilePath := basePath + "/" + xmlFile
 	cfg.XmlConfig = xmlFilePath
 
 	v := new(vm.VM)

@@ -9,7 +9,7 @@ func TestTemplateCreation(t *testing.T) {
 	cfg := new(Config)
 
 	// 2. Create an XML configuration file
-	file := cfg.CreateXMLConfig("test", 1024, 10, ALPINE_LINUX)
+	file := cfg.CreateXMLConfig("test", 1024, 10, "alpine_linux")
 	path := "/home/xen/Desktop/code/virt/vm-manger/templates/" + file
 	cfg.XmlConfig = path
 

@@ -20,10 +20,7 @@ const (
 
 type OSTYPE string
 
-const (
-	ALPINE_LINUX OSTYPE = "/home/xen/vms/images/alpine-standard-3.20.3-x86.iso"
-	STORAGE_PATH        = "/home/xen/vms/images/alpine-standard-3.20.3-x86.iso"
-)
+var ALPINE_LINUX OSTYPE
 
 type Config struct {
 	Name          string
@@ -58,13 +55,16 @@ func (cfg *Config) CreateXMLConfig(n string, mem int, store int, osType string) 
 	}
 
 	if osType == "alpine_linux" {
-		cfg.PathToBootImg = string(ALPINE_LINUX)
+		pathToAlpineLinux := os.Getenv("DEFAULT_OS_PATH")
+		cfg.PathToBootImg = string(pathToAlpineLinux)
 	}
 
 	log.Printf("%v \n", cfg)
 
-	// 2. Parse the XML template
-	os.Chdir("/home/xen/Desktop/code/virt/vm-manger/templates")
+	cwd, _ := os.Getwd()
+	basePath := cwd + "/templates"
+	os.Chdir(basePath)
+
 	curDir, _ := os.Getwd()
 	log.Printf("curr dir is %v", curDir)
 	tmpl, err := template.ParseFiles("template.xml")
@@ -234,6 +234,7 @@ func stopDomain(dom *libvirt.Domain) error {
 }
 
 func createDiskImage(cfg *Config) error {
+	// defualt path to storage
 	pathToStorage := fmt.Sprintf("/var/lib/libvirt/images/%s.qcow2", cfg.Name)
 	cmd := exec.Command("qemu-img", "create", "-f", "qcow2", pathToStorage, fmt.Sprintf("%dM", cfg.Storage))
 	err := cmd.Run()
